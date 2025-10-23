@@ -5,6 +5,18 @@ This repository will hold both the firmware running on the ESP32 and the web gui
 
 ## Docs ##
 [Rust on ESP Book](https://docs.espressif.com/projects/rust/book/)
+[ESP32C6 Devkit](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/index.html)
+[ESP32C6 Datasheet](https://documentation.espressif.com/esp32-c6_datasheet_en.pdf)
+
+## Hardware (CPU and memory) ##
+* Board:  ESP32-C6-DevKitC-1-N8
+* HP CPU:    160 MHz RISC-V
+* LP CPU:    20  MHz RISC-V
+* HP RAM:    512 kB
+* LP RAM:    16 kB
+* ROM:       32 kB
+* SPI Flash: 8 MB
+and more...
 
 ## Toolchain ##
 Toolchain installation (provided that Rust is installed)
