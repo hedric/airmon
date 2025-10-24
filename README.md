@@ -18,25 +18,24 @@ This repository will hold both the firmware running on the ESP32 and the web gui
 * SPI Flash: 8 MB
 * and more...
 
-## Toolchain ##
-Toolchain installation (provided that Rust is installed)
+## Tools ##
+
+### Toolchain ###
+Installation steps (provided that Rust is installed), where the target triple is: `riscv32imac-unknown-none-elf`
 ```bash
 rustup update
 rustup toolchain install nightly --component rust-src
 rustup target add riscv32imac-unknown-none-elf
 ```
 
-## probe-rs ##
-Embedded programming tool. Supports RTT.
-
-Install probe-rs
+### probe-rs ###
+An embedded programming and debugging tooltool. Among other feature it supports RTT.
 ```bash
 curl -LsSf https://github.com/probe-rs/probe-rs/releases/latest/download/probe-rs-tools-installer.sh | sh
 ```
-## espflash ##
-Serial flash cli utility tool for esp32 SoC's. Provided by Espressif.
 
-Install espflash
+### espflash ###
+A serial flash cli utility tool for esp32 SoC's. Provided by Espressif.
 ```bash
 cargo install espflash --locked
 ```
