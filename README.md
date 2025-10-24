@@ -4,11 +4,11 @@ This project is intended for my own amusement and Rust learning. The main goal o
 This repository will hold both the firmware running on the ESP32 and the web gui software running on the server. The idea is to write all of it in Rust.
 
 ## Docs ##
-[Rust on ESP Book](https://docs.espressif.com/projects/rust/book/)
-[ESP32C6 Devkit](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/index.html)
-[ESP32C6 Datasheet](https://documentation.espressif.com/esp32-c6_datasheet_en.pdf)
+* [Rust on ESP Book](https://docs.espressif.com/projects/rust/book/)
+* [ESP32C6 Devkit](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/index.html)
+* [ESP32C6 Datasheet](https://documentation.espressif.com/esp32-c6_datasheet_en.pdf)
 
-## Hardware (CPU and memory) ##
+## Hardware ##
 * Board:  ESP32-C6-DevKitC-1-N8
 * HP CPU:    160 MHz RISC-V
 * LP CPU:    20  MHz RISC-V
@@ -16,7 +16,7 @@ This repository will hold both the firmware running on the ESP32 and the web gui
 * LP RAM:    16 kB
 * ROM:       32 kB
 * SPI Flash: 8 MB
-and more...
+* and more...
 
 ## Toolchain ##
 Toolchain installation (provided that Rust is installed)
