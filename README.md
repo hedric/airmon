@@ -39,3 +39,23 @@ A serial flash cli utility tool for esp32 SoC's. Provided by Espressif.
 ```bash
 cargo install espflash --locked
 ```
+
+### esp-generate ###
+Project template generation tool to create applications for ESP SoC's.
+```bash
+cargo install esp-generate --locked
+esp-generate
+```
+
+### udev rule ###
+Add udev rule to give user access to serial-usb device, and add current user to dialout group
+```bash
+echo 'ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", GROUP="dialout", MODE="0666"' | sudo tee /etc/udev/rules.d/99-esp.rules
+sudo usermod -aG dialout $USER
+```
+
+### Flash target ###
+Flash the esp32-c6 target
+```bash
+cargo run --release
+```
