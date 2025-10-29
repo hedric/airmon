@@ -29,7 +29,7 @@ rustup target add riscv32imac-unknown-none-elf
 ```
 
 ### probe-rs ###
-An embedded programming and debugging tooltool. Among other feature it supports RTT.
+An embedded programming and debugging tooltool. Among other features it supports RTT.
 ```bash
 curl -LsSf https://github.com/probe-rs/probe-rs/releases/latest/download/probe-rs-tools-installer.sh | sh
 ```
