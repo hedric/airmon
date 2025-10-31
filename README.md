@@ -17,6 +17,12 @@ This repository will hold both the firmware running on the ESP32 and the web gui
 * ROM:       32 kB
 * SPI Flash: 8 MB
 * and more...
+### RGB LED ###
+The RGB LED on the board is the WS2812B. The red, green and blue colors are encoded in a 24 bit value, 8 bits per color. An example below for each color at full brightness:
+
+* Green: `0b11111111_00000000_00000000 = 0xff0000`
+* Red: `0b00000000_11111111_00000000 = 0x00ff00`
+* Blue: `0b00000000_00000000_11111111 = 0x0000ff`
 
 ## Tools ##
 
