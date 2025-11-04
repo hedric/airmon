@@ -21,7 +21,6 @@ esp_bootloader_esp_idf::esp_app_desc!();
 
 #[main]
 fn main() -> ! {
-    // generator version: 0.6.0
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
@@ -31,10 +30,14 @@ fn main() -> ! {
     let mut rgb_led = led::Led::new(&mut gpio8, &mut delay);
 
     loop {
-        info!("Hello world!");
+        info!("Hello airmon!");
         let delay_start = Instant::now();
         while delay_start.elapsed() < Duration::from_millis(500) {}
-        rgb_led.set_color(255, 255, 255);
+        rgb_led.set_color(255, 0, 0);
+        while delay_start.elapsed() < Duration::from_millis(1000) {}
+        rgb_led.set_color(0, 255, 0);
+        while delay_start.elapsed() < Duration::from_millis(1500) {}
+        rgb_led.set_color(0, 0, 255);
     }
 
     // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0-rc.1/examples/src/bin
