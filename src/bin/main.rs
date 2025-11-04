@@ -8,7 +8,9 @@
 
 use defmt::info;
 use esp_hal::clock::CpuClock;
+use esp_hal::delay::Delay;
 use esp_hal::main;
+use esp_hal::gpio::{Level, Output, OutputConfig};
 use esp_hal::time::{Duration, Instant};
 use {esp_backtrace as _, esp_println as _};
 
@@ -22,14 +24,17 @@ fn main() -> ! {
     // generator version: 0.6.0
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
-    let _peripherals = esp_hal::init(config);
+    let peripherals = esp_hal::init(config);
+    let mut gpio8 = Output::new(peripherals.GPIO8, Level::High, OutputConfig::default());
+    let mut delay = Delay::new();
 
-    led::test();
+    let mut rgb_led = led::Led::new(&mut gpio8, &mut delay);
 
     loop {
         info!("Hello world!");
         let delay_start = Instant::now();
         while delay_start.elapsed() < Duration::from_millis(500) {}
+        rgb_led.set_color(255, 255, 255);
     }
 
     // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0-rc.1/examples/src/bin
