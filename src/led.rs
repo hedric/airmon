@@ -1,4 +1,4 @@
-    //set gpio high
+//set gpio high
 //      Bit bang driver for the WS2812B
 //      Bits encoded as follows:
 //
@@ -32,54 +32,50 @@ use esp_hal::{
 //use esp_hal::gpio::Output;
 
 pub struct Led<'a> {
-    pin: &'a Output<'a>,
-    delay: &'a Delay,
+    pin: &'a mut Output<'a>,
+    delay: &'a mut Delay,
     color: u32,
 }
 
-pub fn bit_bang_high(delay: Delay, &mut pin: Output) {
+pub fn bit_bang_high(delay: Delay, pin: &mut Output) {
     delay.delay_nanos(800 as u32);
     pin.set_high();
     //set gpio low
     info!("high");
 }
 
-pub fn bit_bang_low(delay: Delay, pin: Output) {
+pub fn bit_bang_low(delay: Delay, pin: &mut Output) {
     delay.delay_nanos(100 as u32);
+    pin.set_low();
     info!("high");
 }
 
 impl<'a> Led<'a> {
-
-    pub fn new(pin: &'a Output<'a>, delay: &'a Delay) -> Self {
-        Self { pin: pin,
-               delay: delay,
-                color: 0 }
+    pub fn new(pin: &'a mut Output<'a>, delay: &'a mut Delay) -> Self {
+        Self {
+            pin,
+            delay,
+            color: 0,
         }
-
+    }
 
     pub fn set_color(&mut self, red: u8, green: u8, blue: u8) {
-
         self.color |= (red as u32) << 16;
         self.color |= (green as u32) << 8;
         self.color |= blue as u32;
 
         info!("RGB LED: changing color");
         for i in 0..32 {
-            if (self.color >> i) & 1 == 1
-            {
+            if (self.color >> i) & 1 == 1 {
                 bit_bang_high(*self.delay, self.pin);
-            }
-            else {
+            } else {
                 bit_bang_low(*self.delay, self.pin);
             }
         }
         info!("RGB LED: color change complete");
     }
-
 }
 
 pub fn test() {
     info!("LED test");
 }
-
