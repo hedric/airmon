@@ -10,8 +10,10 @@ use defmt::info;
 use esp_hal::clock::CpuClock;
 use esp_hal::delay::Delay;
 use esp_hal::main;
+use esp_hal::rmt::{TxChannelConfig};
 use esp_hal::gpio::{Level, Output, OutputConfig};
-use esp_hal::time::{Duration, Instant};
+use esp_hal::rmt::{Rmt, ChannelCreator, Channel, TxChannelCreator, PulseCode};
+use esp_hal::time::{Duration, Instant, Rate};
 use {esp_backtrace as _, esp_println as _};
 
 use airmon::led;
@@ -19,25 +21,51 @@ use airmon::led;
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
 
+const RMT_CLOCK_FREQ_MHZ: u32 = 80;
+
+const WS2812_T0H: u32 = RMT_CLOCK_FREQ_MHZ * 400 / 1000;
+const WS2812_T0L: u32 = RMT_CLOCK_FREQ_MHZ * 850 / 1000;
+
+const WS2812_T1H: u32 = RMT_CLOCK_FREQ_MHZ * 800 / 1000;
+const WS2812_T1L: u32 = RMT_CLOCK_FREQ_MHZ * 450 / 1000;
+
 #[main]
 fn main() -> ! {
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
-    let mut gpio8 = Output::new(peripherals.GPIO8, Level::High, OutputConfig::default());
+    //let mut gpio8 = Output::new(peripherals.GPIO8, Level::High, OutputConfig::default());
     let mut delay = Delay::new();
 
-    let mut rgb_led = led::Led::new(&mut gpio8, &mut delay);
+    //let mut rgb_led = led::Led::new(&mut gpio8, &mut delay);
+
+    let freq = Rate::from_mhz(RMT_CLOCK_FREQ_MHZ);
+    let rmt = Rmt::new(peripherals.RMT, freq).unwrap();
+
+    let tx_config = TxChannelConfig::default().with_clk_divider(1);
+
+    let logic_0 = PulseCode::new(Level::High, WS2812_T0H as u16, Level::Low, WS2812_T0L as u16);
+    let logic_1 = PulseCode::new(Level::High, WS2812_T1H as u16, Level::Low, WS2812_T1L as u16);
+
+    let mut channel = rmt.channel0.configure_tx(peripherals.GPIO8, tx_config);
+
+    //rgb_led.set_color(10, 0, 0);
 
     loop {
-        info!("Hello airmon!");
         let delay_start = Instant::now();
-        while delay_start.elapsed() < Duration::from_millis(500) {}
-        rgb_led.set_color(255, 0, 0);
+        info!("RED");
+        // rgb_led.set_color(10, 0, 0);
         while delay_start.elapsed() < Duration::from_millis(1000) {}
-        rgb_led.set_color(0, 255, 0);
-        while delay_start.elapsed() < Duration::from_millis(1500) {}
-        rgb_led.set_color(0, 0, 255);
+        //
+        // let delay_start = Instant::now();
+        // info!("GREEN");
+        // rgb_led.set_color(0, 10, 0);
+        // while delay_start.elapsed() < Duration::from_millis(1000) {}
+        //
+        // let delay_start = Instant::now();
+        // info!("BLUE");
+        // rgb_led.set_color(0, 0, 10);
+        // while delay_start.elapsed() < Duration::from_millis(1000) {}
     }
 
     // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0-rc.1/examples/src/bin

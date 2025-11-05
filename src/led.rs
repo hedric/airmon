@@ -1,51 +1,54 @@
+//
 //      Bit bang driver for the WS2812B
 //      Bits encoded as follows:
 //
-//      "Logic 0":
+//                 "Logic 0":
 //         +-------+              +--
 //         |       |              |
 //         |       |              |
 //         |       |              |
 //         |       |--------------|
 //         +       +              +
-//         | 0.4us |   0.85us     |
+//         | 0.4us |    0.85us    |
 //
-//      "Logic 1":
-//         +-------------+       +--
-//         |             |       |
-//         |             |       |
-//         |             |       |
-//         |             |       |
-//         +             +-------+
-//         |    0.8us    | 0.4us |
+//                 "Logic 1":
+//         +-------------+         +--
+//         |             |         |
+//         |             |         |
+//         |             |         |
+//         +             +---------+
+//         |    0.8us    | 0.45 us |
+
+const WS2812_T0H_NS: u32 = 400;
+const WS2812_T0L_NS: u32 = 850;
+
+const WS2812_T1H_NS: u32 = 800;
+const WS2812_T1L_NS: u32 = 450;
 
 use defmt::info;
 use esp_hal::{
     delay::Delay,
     gpio::Output,
+    time::Instant,
 };
-
 
 pub struct Led<'a> {
     pin: &'a mut Output<'a>,
     delay: &'a mut Delay,
-    color: u32,
 }
 
-pub fn bit_bang_1(delay: Delay, pin: &mut Output) {
+pub fn bit_bang_0(delay: &mut Delay, pin: &mut Output) {
     pin.set_high();
-    delay.delay_nanos(400 as u32);
+    delay.delay_nanos(WS2812_T0H_NS);
     pin.set_low();
-    delay.delay_nanos(850 as u32);
-    pin.set_high();
+    delay.delay_nanos(WS2812_T0L_NS);
 }
 
-pub fn bit_bang_0(delay: Delay, pin: &mut Output) {
+pub fn bit_bang_1(delay: &mut Delay, pin: &mut Output) {
     pin.set_high();
-    delay.delay_nanos(800 as u32);
+    delay.delay_nanos(WS2812_T1H_NS);
     pin.set_low();
-    delay.delay_nanos(400 as u32);
-    pin.set_high();
+    delay.delay_nanos(WS2812_T1L_NS);
 }
 
 impl<'a> Led<'a> {
@@ -53,25 +56,27 @@ impl<'a> Led<'a> {
         Self {
             pin,
             delay,
-            color: 0,
         }
     }
 
     pub fn set_color(&mut self, red: u8, green: u8, blue: u8) {
-        self.color |= (red as u32) << 16;
-        self.color |= (green as u32) << 8;
-        self.color |= blue as u32;
 
-        info!("RGB LED: start sending bits to RGB LED");
-        for i in 0..24 {
-            if (self.color >> i) & 1 == 1 {
-                bit_bang_1(*self.delay, self.pin);
+        let color = ((green as u32) << 16) | ((red as u32) << 8) | (blue as u32);
+
+        info!("Setting color: {}", color);
+
+        // Most significant bits are sent first
+        for i in (0..24).rev() {
+            if (color >> i) & 1 == 1 {
+                bit_bang_1(self.delay, self.pin);
             } else {
-                bit_bang_0(*self.delay, self.pin);
+                bit_bang_0(self.delay, self.pin);
             }
         }
-        info!("RGB LED: done sending bits to RGB LED");
-        info!("sent this color code: {}", self.color);
+
+        // Send reset pulse >50 us to latch data
+        self.pin.set_low();
+        self.delay.delay_micros(80);
     }
 }
 
