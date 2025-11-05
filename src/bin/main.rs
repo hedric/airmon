@@ -12,7 +12,7 @@ use esp_hal::delay::Delay;
 use esp_hal::main;
 use esp_hal::rmt::{TxChannelConfig};
 use esp_hal::gpio::{Level, Output, OutputConfig};
-use esp_hal::rmt::{Rmt, ChannelCreator, Channel, TxChannelCreator, PulseCode};
+use esp_hal::rmt::{Rmt, ChannelCreator, Channel, TxChannelCreator, PulseCode, TxChannelCreator};
 use esp_hal::time::{Duration, Instant, Rate};
 use {esp_backtrace as _, esp_println as _};
 
@@ -28,6 +28,9 @@ const WS2812_T0L: u32 = RMT_CLOCK_FREQ_MHZ * 850 / 1000;
 
 const WS2812_T1H: u32 = RMT_CLOCK_FREQ_MHZ * 800 / 1000;
 const WS2812_T1L: u32 = RMT_CLOCK_FREQ_MHZ * 450 / 1000;
+
+const WS2812_RST: u32 = RMT_CLOCK_FREQ_MHZ * 50000 / 1000;
+
 
 #[main]
 fn main() -> ! {
@@ -46,26 +49,41 @@ fn main() -> ! {
 
     let logic_0 = PulseCode::new(Level::High, WS2812_T0H as u16, Level::Low, WS2812_T0L as u16);
     let logic_1 = PulseCode::new(Level::High, WS2812_T1H as u16, Level::Low, WS2812_T1L as u16);
+    let logic_rst = PulseCode::new(Level::High, 0, Level::Low, WS2812_RST as u16);
 
     let mut channel = rmt.channel0.configure_tx(peripherals.GPIO8, tx_config);
 
+    let red = 10;
+    let green = 10;
+    let blue = 10;
+
+    let color = ((green as u32) << 16) | ((red as u32) << 8) | (blue as u32);
+
+    let mut data = [PulseCode::default(); 25];
+
+    for i in (0..24).rev() {
+        if (color >> i) & 1 == 1 {
+            //bit_bang_1(self.delay, self.pin);
+            data[i] = logic_1;
+
+        } else {
+            //bit_bang_0(self.delay, self.pin);
+            data[i] = logic_0;
+        }
+    }
+
+    data[24] = logic_rst;
+
     //rgb_led.set_color(10, 0, 0);
+
+    let transaction = channel.transmit(&data)?;
+    channel = transaction.wait()?;
+
 
     loop {
         let delay_start = Instant::now();
-        info!("RED");
-        // rgb_led.set_color(10, 0, 0);
         while delay_start.elapsed() < Duration::from_millis(1000) {}
-        //
-        // let delay_start = Instant::now();
-        // info!("GREEN");
-        // rgb_led.set_color(0, 10, 0);
-        // while delay_start.elapsed() < Duration::from_millis(1000) {}
-        //
-        // let delay_start = Instant::now();
-        // info!("BLUE");
-        // rgb_led.set_color(0, 0, 10);
-        // while delay_start.elapsed() < Duration::from_millis(1000) {}
+        info!("test..");
     }
 
     // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0-rc.1/examples/src/bin
